@@ -3,7 +3,7 @@
 ## Getting Started
 
 ```bash
-npx create-electron-app@latest my-new-app --template=webpack-typescript
+
 ```
 
 ## コード署名
