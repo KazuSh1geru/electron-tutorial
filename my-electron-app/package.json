@@ -4,9 +4,9 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf dist/",
     "build": "electron-builder",
-    "build:verbose": "DEBUG=electron-builder electron-builder",
+    "build:mac": "electron-builder --mac",
     "pack": "electron-builder --dir"
   },
   "build": {
@@ -15,7 +15,8 @@
     "mac": {
       "category": "public.app-category.utilities",
       "target": ["dmg", "zip"],
-      "icon": "build/icon.icns"
+      "icon": "build/icon.icns",
+      "identity": null
     },
     "directories": {
       "output": "dist",
@@ -40,8 +41,8 @@
   "license": "ISC",
   "description": "My Electron application description",
   "devDependencies": {
-    "electron": "^34.3.0",
-    "electron-builder": "^24.13.3"
+    "electron": "^25.9.8",
+    "electron-builder": "^24.6.4"
   },
   "dependencies": {
     "active-win": "^8.2.1",
