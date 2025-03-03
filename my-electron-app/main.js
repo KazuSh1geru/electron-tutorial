@@ -3,9 +3,11 @@
 
 const { app, BrowserWindow, ipcMain, screen } = require('electron')
 const path = require('path')
+const macAccessibility = require('./native_mac')
 
 let mainWindow
 let overlayWindow
+let isPolling = false
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -47,14 +49,55 @@ const showOverlayAtPosition = (x, y) => {
   overlayWindow.show()
 }
 
-app.whenReady().then(() => {
+// グローバルテキスト選択の監視
+async function startTextSelectionPolling() {
+  if (isPolling) return;
+  isPolling = true;
+
+  let lastSelectedText = '';
+  
+  while (isPolling) {
+    try {
+      const selectedText = await macAccessibility.getSelectedText();
+      
+      if (selectedText && selectedText !== lastSelectedText) {
+        lastSelectedText = selectedText;
+        
+        // 選択範囲の位置を取得
+        const bounds = await macAccessibility.getSelectionBounds();
+        if (bounds) {
+          showOverlayAtPosition(bounds.x, bounds.y);
+        } else {
+          // 位置が取得できない場合はマウスカーソルの位置を使用
+          const point = screen.getCursorScreenPoint();
+          showOverlayAtPosition(point.x + 20, point.y + 20);
+        }
+      } else if (!selectedText && lastSelectedText) {
+        lastSelectedText = '';
+        if (overlayWindow) {
+          overlayWindow.hide();
+        }
+      }
+    } catch (error) {
+      console.error('Error in text selection polling:', error);
+    }
+    
+    // 100ミリ秒待機
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+}
+
+app.whenReady().then(async () => {
   createWindow()
 
-  // テスト用のショートカットキーを登録
-  const { globalShortcut } = require('electron')
-  globalShortcut.register('CommandOrControl+Shift+T', () => {
-    showOverlayAtPosition(0, 0)
-  })
+  // アクセシビリティ権限をチェック
+  const hasPermission = await macAccessibility.checkPermission();
+  if (!hasPermission) {
+    await macAccessibility.requestPermission();
+  }
+
+  // テキスト選択の監視を開始
+  startTextSelectionPolling();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -64,27 +107,14 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
+  isPolling = false;
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
-// テキスト選択イベントの処理
-ipcMain.on('text-selected', (event, data) => {
-  const { position } = data;
-  showOverlayAtPosition(position.x, position.y);
-});
-
-// オーバーレイを非表示にする
-ipcMain.on('hide-overlay', () => {
-  if (overlayWindow) {
-    overlayWindow.hide();
-  }
-});
-
 // オーバーレイがクリックされたときの処理
 ipcMain.on('overlay-clicked', () => {
-  console.log('Overlay clicked!')
   if (overlayWindow) {
     overlayWindow.hide()
   }
