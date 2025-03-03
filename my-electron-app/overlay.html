@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Overlay</title>
+    <style>
+        body {
+            margin: 0;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #overlay-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #4a90e2;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay-icon">T</div>
+    <script>
+        const { ipcRenderer } = require('electron');
+        
+        document.getElementById('overlay-icon').addEventListener('click', () => {
+            ipcRenderer.send('overlay-clicked');
+        });
+    </script>
+</body>
+</html> 

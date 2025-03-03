@@ -10,12 +10,29 @@
       http-equiv="X-Content-Security-Policy"
       content="default-src 'self'; script-src 'self'"
     />
-    <title>Hello from Electron renderer!</title>
+    <title>Text Selection Test</title>
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        #test-area {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
   </head>
   <body>
-    <h1>Hello from Electron renderer!</h1>
-    <p>👋</p>
-    <p id="info"></p>
+    <h1>テキスト選択テスト</h1>
+    <div id="test-area">
+        ここにテキストを選択してください。Command+Shift+T を押すと、マウスの位置にオーバーレイアイコンが表示されます。
+        
+        テスト用のサンプルテキスト：
+        
+        吾輩は猫である。名前はまだ無い。どこで生れたかとんと見当がつかぬ。何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。
+    </div>
   </body>
   <script src="./renderer.js"></script>
 </html>
