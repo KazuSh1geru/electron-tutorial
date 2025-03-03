@@ -48,7 +48,6 @@ const showOverlayAtPosition = (x, y) => {
     createOverlayWindow()
   }
   
-  // オーバーレイウィンドウの位置を調整（アイコンがテキストの右下に表示されるように）
   overlayWindow.setPosition(Math.round(x), Math.round(y))
   overlayWindow.show()
 }
@@ -67,7 +66,6 @@ async function checkAndRequestAccessibility() {
 
     if (result.response === 0) {
       await macAccessibility.requestPermission();
-      // 権限が付与されたか再確認
       const granted = await macAccessibility.checkPermission();
       if (!granted) {
         await dialog.showMessageBox({
@@ -98,12 +96,10 @@ async function startTextSelectionPolling() {
       if (selectedText && selectedText !== lastSelectedText) {
         lastSelectedText = selectedText;
         
-        // 選択範囲の位置を取得
         const bounds = await macAccessibility.getSelectionBounds();
         if (bounds) {
           showOverlayAtPosition(bounds.x, bounds.y);
         } else {
-          // 位置が取得できない場合はマウスカーソルの位置を使用
           const point = screen.getCursorScreenPoint();
           showOverlayAtPosition(point.x + 20, point.y + 20);
         }
@@ -117,20 +113,34 @@ async function startTextSelectionPolling() {
       console.error('Error in text selection polling:', error);
     }
     
-    // 100ミリ秒待機
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 }
 
+// アプリケーションの初期化
 app.whenReady().then(async () => {
+  // アクセシビリティサポートを明示的に有効化
+  app.setAccessibilitySupportEnabled(true);
+
   createWindow();
 
   // アクセシビリティ権限をチェック
   const accessibilityGranted = await checkAndRequestAccessibility();
   if (accessibilityGranted) {
-    // テキスト選択の監視を開始
     startTextSelectionPolling();
   }
+
+  // アクセシビリティ状態の変更を監視
+  macAccessibility.subscribeToAccessibilityChanges((granted) => {
+    if (granted && !isPolling) {
+      startTextSelectionPolling();
+    } else if (!granted && isPolling) {
+      isPolling = false;
+      if (overlayWindow) {
+        overlayWindow.hide();
+      }
+    }
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

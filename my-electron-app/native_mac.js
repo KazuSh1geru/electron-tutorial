@@ -1,4 +1,4 @@
-const { systemPreferences } = require('electron');
+const { systemPreferences, app } = require('electron');
 const macPermissions = require('node-mac-permissions');
 const activeWin = require('active-win');
 
@@ -9,9 +9,11 @@ class MacAccessibility {
     }
 
     async checkPermission() {
-        // アクセシビリティの権限をチェック
         try {
-            return systemPreferences.isTrustedAccessibilityClient(false);
+            // 両方のチェックを実行
+            const isTrusted = systemPreferences.isTrustedAccessibilityClient(false);
+            const isEnabled = systemPreferences.isAXIsEnabled();
+            return isTrusted && isEnabled;
         } catch (error) {
             console.error('Error checking accessibility permission:', error);
             return false;
@@ -19,9 +21,9 @@ class MacAccessibility {
     }
 
     async requestPermission() {
-        // アクセシビリティの権限をリクエスト
         try {
-            // システム環境設定のセキュリティとプライバシーパネルを開く
+            // アクセシビリティサポートを明示的に有効化
+            app.setAccessibilitySupportEnabled(true);
             return systemPreferences.isTrustedAccessibilityClient(true);
         } catch (error) {
             console.error('Error requesting accessibility permission:', error);
@@ -93,6 +95,16 @@ end tell`;
             return null;
         }
     }
+
+    subscribeToAccessibilityChanges(callback) {
+        systemPreferences.subscribeNotification(
+            'AXIsProcessTrustedChanged',
+            async () => {
+                const granted = await this.checkPermission();
+                callback(granted);
+            }
+        );
+    }
 }
 
-module.exports = new MacAccessibility(); 
+module.exports = new MacAccessibility();
