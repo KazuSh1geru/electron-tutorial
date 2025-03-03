@@ -37,16 +37,13 @@ const createOverlayWindow = () => {
   overlayWindow.loadFile('overlay.html')
 }
 
-// テスト用: マウスの位置にオーバーレイを表示
-const showOverlayAtMousePosition = () => {
-  const { getCursorScreenPoint } = screen
-  const point = getCursorScreenPoint()
-  
+const showOverlayAtPosition = (x, y) => {
   if (!overlayWindow) {
     createOverlayWindow()
   }
   
-  overlayWindow.setPosition(point.x, point.y)
+  // オーバーレイウィンドウの位置を調整（アイコンがテキストの右下に表示されるように）
+  overlayWindow.setPosition(Math.round(x), Math.round(y))
   overlayWindow.show()
 }
 
@@ -56,7 +53,7 @@ app.whenReady().then(() => {
   // テスト用のショートカットキーを登録
   const { globalShortcut } = require('electron')
   globalShortcut.register('CommandOrControl+Shift+T', () => {
-    showOverlayAtMousePosition()
+    showOverlayAtPosition(0, 0)
   })
 
   app.on('activate', () => {
@@ -72,10 +69,23 @@ app.on('window-all-closed', () => {
   }
 })
 
+// テキスト選択イベントの処理
+ipcMain.on('text-selected', (event, data) => {
+  const { position } = data;
+  showOverlayAtPosition(position.x, position.y);
+});
+
+// オーバーレイを非表示にする
+ipcMain.on('hide-overlay', () => {
+  if (overlayWindow) {
+    overlayWindow.hide();
+  }
+});
+
 // オーバーレイがクリックされたときの処理
 ipcMain.on('overlay-clicked', () => {
   console.log('Overlay clicked!')
   if (overlayWindow) {
     overlayWindow.hide()
   }
-})
+});
