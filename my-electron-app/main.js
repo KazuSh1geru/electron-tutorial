@@ -30,12 +30,16 @@ const createOverlayWindow = () => {
     transparent: true,
     alwaysOnTop: true,
     skipTaskbar: true,
+    hasShadow: false,
+    focusable: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
     }
   })
 
+  overlayWindow.setVisibleOnAllWorkspaces(true)
+  overlayWindow.setAlwaysOnTop(true, 'screen-saver')
   overlayWindow.loadFile('overlay.html')
 }
 
