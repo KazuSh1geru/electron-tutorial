@@ -9,14 +9,23 @@ class MacAccessibility {
 
     async checkPermission() {
         // アクセシビリティの権限をチェック
-        const status = await macPermissions.getAuthStatus('accessibility');
-        return status === 'authorized';
+        try {
+            return systemPreferences.isTrustedAccessibilityClient(false);
+        } catch (error) {
+            console.error('Error checking accessibility permission:', error);
+            return false;
+        }
     }
 
     async requestPermission() {
         // アクセシビリティの権限をリクエスト
-        await macPermissions.askForAccessibility();
-        return this.checkPermission();
+        try {
+            // システム環境設定のセキュリティとプライバシーパネルを開く
+            return systemPreferences.isTrustedAccessibilityClient(true);
+        } catch (error) {
+            console.error('Error requesting accessibility permission:', error);
+            return false;
+        }
     }
 
     async getSelectedText() {

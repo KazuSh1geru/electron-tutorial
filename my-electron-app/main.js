@@ -1,7 +1,7 @@
 // app, which controls your application's event lifecycle.
 // BrowserWindow, which creates and manages app windows.
 
-const { app, BrowserWindow, ipcMain, screen } = require('electron')
+const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron')
 const path = require('path')
 const macAccessibility = require('./native_mac')
 
@@ -49,6 +49,37 @@ const showOverlayAtPosition = (x, y) => {
   overlayWindow.show()
 }
 
+// アクセシビリティ権限の確認と要求
+async function checkAndRequestAccessibility() {
+  const hasPermission = await macAccessibility.checkPermission();
+  
+  if (!hasPermission) {
+    const result = await dialog.showMessageBox({
+      type: 'info',
+      title: 'アクセシビリティ権限が必要です',
+      message: 'テキスト選択機能を使用するには、アクセシビリティの権限が必要です。\n「システム環境設定」が開きますので、アプリケーションにチェックを入れてください。',
+      buttons: ['OK', 'キャンセル']
+    });
+
+    if (result.response === 0) {
+      await macAccessibility.requestPermission();
+      // 権限が付与されたか再確認
+      const granted = await macAccessibility.checkPermission();
+      if (!granted) {
+        await dialog.showMessageBox({
+          type: 'warning',
+          message: 'アクセシビリティ権限が付与されていません。\nテキスト選択機能は利用できません。',
+          buttons: ['OK']
+        });
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+  return true;
+}
+
 // グローバルテキスト選択の監視
 async function startTextSelectionPolling() {
   if (isPolling) return;
@@ -88,34 +119,32 @@ async function startTextSelectionPolling() {
 }
 
 app.whenReady().then(async () => {
-  createWindow()
+  createWindow();
 
   // アクセシビリティ権限をチェック
-  const hasPermission = await macAccessibility.checkPermission();
-  if (!hasPermission) {
-    await macAccessibility.requestPermission();
+  const accessibilityGranted = await checkAndRequestAccessibility();
+  if (accessibilityGranted) {
+    // テキスト選択の監視を開始
+    startTextSelectionPolling();
   }
-
-  // テキスト選択の監視を開始
-  startTextSelectionPolling();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
+      createWindow();
     }
-  })
-})
+  });
+});
 
 app.on('window-all-closed', () => {
   isPolling = false;
   if (process.platform !== 'darwin') {
-    app.quit()
+    app.quit();
   }
-})
+});
 
 // オーバーレイがクリックされたときの処理
 ipcMain.on('overlay-clicked', () => {
   if (overlayWindow) {
-    overlayWindow.hide()
+    overlayWindow.hide();
   }
 });
