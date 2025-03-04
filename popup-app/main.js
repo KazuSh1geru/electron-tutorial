@@ -51,7 +51,12 @@ function startClipboardMonitoring() {
       lastClipboardText = currentText;
       const cursorPosition = screen.getCursorScreenPoint();
       createPopupWindow(cursorPosition);
-
+      
+      // メインウィンドウにも新しいクリップボードの内容を送信
+      if (mainWindow) {
+        mainWindow.webContents.send('update-clipboard', currentText);
+      }
+      
       // ポップアップウィンドウが存在する場合は内容を更新
       if (popupWindow) {
         popupWindow.webContents.send('update-clipboard', currentText);
@@ -59,7 +64,6 @@ function startClipboardMonitoring() {
     }
   }, 500);
 }
-
 const createWindow = () => {
   try {
     mainWindow = new BrowserWindow({
