@@ -90,8 +90,11 @@ ipcMain.on('correct-text', async (event, text) => {
     // メインウィンドウに処理中メッセージを表示
     mainWindow.webContents.send('correction-status', '校正しています...');
     
+    // クリップボードから現在のテキストを取得
+    const clipboardText = clipboard.readText();
+    
     // 校正処理を実行
-    const result = await textCorrector.correct(text);
+    const result = await textCorrector.correct(clipboardText);
     
     // 処理結果をメインウィンドウに送信
     mainWindow.webContents.send('correction-complete', result);

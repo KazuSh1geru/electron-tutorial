@@ -1,3 +1,5 @@
+const DUMMY_CORRECTED_TEXT = 'TODO: 後ほど実装する';
+
 class TextCorrector {
   constructor() {
     this.processingTime = 2000; // 処理時間を2秒に設定
@@ -13,7 +15,7 @@ class TextCorrector {
     // ダミーの校正結果を返す
     return {
       original: text,
-      corrected: text + ' (校正済み)',
+      corrected: DUMMY_CORRECTED_TEXT,
       status: 'success',
       timestamp: new Date().toISOString()
     };
