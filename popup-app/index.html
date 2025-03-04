@@ -4,28 +4,14 @@
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
     />
     <meta
       http-equiv="X-Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
     />
     <title>Demo 文章版バグチェック</title>
-    <style>
-      .correction-button {
-        padding: 10px 20px;
-        font-size: 16px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin: 10px 0;
-      }
-      .correction-button:hover {
-        background-color: #45a049;
-      }
-    </style>
+    <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
     <h1>Demo 文章版バグチェック</h1>

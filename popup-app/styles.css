@@ -1,0 +1,25 @@
+body {
+  background-color: #f0e6ff;
+  padding: 20px;
+}
+
+.correction-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #8A2BE2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.correction-button:hover {
+  background-color: #9932CC;
+  transform: translateY(-1px);
+}
+
+h1 {
+  color: #4a154b;
+} 
