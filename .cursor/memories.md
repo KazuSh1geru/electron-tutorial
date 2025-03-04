@@ -13,6 +13,8 @@
 
 [v1.0.0] Manual Update: Electronアプリケーションの設計パターンとして、以下を標準とする：1) クリップボードなどのシステムリソースの監視はメインプロセスで集中管理、2) UIの更新はイベントベースで実装、3) 設定値は専用の設定ファイルで一元管理。これにより、保守性と拡張性が向上する。 #planning #architecture #best-practices
 
+[v1.0.1] Development: マルチウィンドウ環境での要素ID管理に関する重要な発見：1) メインウィンドウとポップアップウィンドウでの要素ID命名規則の統一化（例：'main-correction-button'と'correct-button'の明確な区別）、2) 各ウィンドウ固有のJavaScriptファイル（renderer.jsとpopup.js）での独立したイベントハンドリング、3) 共通機能（校正処理）のIPC通信による統一的な処理。これにより、機能の重複を避けつつ、異なるUIコンテキストでの一貫した操作が可能に。 #improvement #architecture #electron #ui
+
 ### Note(編集不可)
 
 *注: このメモリーファイルは時系列順に整理され、タグを活用して分類されます。1000行に達した際には @memories2.md とのクロスリファレンスを作成します。
