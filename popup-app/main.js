@@ -11,7 +11,7 @@ const createPopupWindow = cursorPosition => {
   try {
     // カーソル位置からディスプレイを特定
     const display = screen.getDisplayNearestPoint(cursorPosition);
-    const { workArea } = display; // 実際の作業領域を取得（タスクバーなどを除く）
+    const { workArea } = display;
 
     // ポップアップウィンドウの作成
     popupWindow = new BrowserWindow({
@@ -20,30 +20,28 @@ const createPopupWindow = cursorPosition => {
       frame: false,
       transparent: true,
       skipTaskbar: true,
-      focusable: false,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
       },
       // フルスクリーン対応の設定
-      type: 'panel', // パネルタイプに変更（最も上位レイヤーで表示）
+      type: 'panel',
       hasShadow: false,
     });
 
-    // ウィンドウの位置を設定
-    // workArea内に収まるように位置を調整
-    const x = Math.min(
-      Math.max(cursorPosition.x, workArea.x),
-      workArea.x + workArea.width - settings.popup.width
-    );
-    const y = Math.min(
-      Math.max(cursorPosition.y, workArea.y),
-      workArea.y + workArea.height - settings.popup.height
-    );
-
     // 最前面に表示するための設定
-    popupWindow.setAlwaysOnTop(true, 'screen-saver', 2);
-    popupWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    popupWindow.setAlwaysOnTop(true, 'floating');
+
+    // macOS特有の設定
+    if (process.platform === 'darwin') {
+      popupWindow.setVisibleOnAllWorkspaces(true, {
+        visibleOnFullScreen: true
+      });
+    }
+
+    // ウィンドウの位置を設定
+    const x = cursorPosition.x;
+    const y = cursorPosition.y;
     
     // 位置を設定してからウィンドウを表示
     popupWindow.setPosition(x, y);
