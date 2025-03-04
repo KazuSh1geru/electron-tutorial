@@ -9,29 +9,49 @@ const textCorrector = new TextCorrector();
 
 const createPopupWindow = cursorPosition => {
   try {
+    // カーソル位置からディスプレイを特定
+    const display = screen.getDisplayNearestPoint(cursorPosition);
+    const { workArea } = display;
+
     // ポップアップウィンドウの作成
     popupWindow = new BrowserWindow({
       width: settings.popup.width,
       height: settings.popup.height,
-      frame: false,
-      transparent: true,
-      alwaysOnTop: true,
+      frame: false, // フレームを非表示にする
+      transparent: true, // 透明にする
+      skipTaskbar: true, // タスクバーに表示しない
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
       },
+      // フルスクリーン対応の設定
+      type: 'panel',
+      hasShadow: false,
     });
 
-    // カーソル位置から少しオフセットした位置に表示
-    const offset = settings.popup.offset;
-    popupWindow.setPosition(cursorPosition.x + offset.x, cursorPosition.y + offset.y);
+    // 最前面に表示するための設定
+    popupWindow.setAlwaysOnTop(true, 'floating');
 
+    // macOS特有の設定: フルスクリーンであっても表示を可能にする
+    if (process.platform === 'darwin') {
+      popupWindow.setVisibleOnAllWorkspaces(true, {
+        visibleOnFullScreen: true,
+      });
+    }
+
+    // ウィンドウの位置を設定
+    const x = cursorPosition.x;
+    const y = cursorPosition.y;
+
+    // 位置を設定してからウィンドウを表示
+    popupWindow.setPosition(x, y);
     popupWindow.loadFile('popup.html');
+
     logger.info('Popup window created successfully');
 
     // 3秒後に自動的に閉じる
     setTimeout(() => {
-      if (popupWindow) {
+      if (popupWindow && !popupWindow.isDestroyed()) {
         popupWindow.close();
         popupWindow = null;
       }

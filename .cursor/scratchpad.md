@@ -16,127 +16,76 @@
 最終更新日: 2024-03-21
 
 タスク:
-[ID-001] Electron-based Popup App for Text Correction (macOS)
+[ID-001] マルチモニター環境でのウィンドウ表示制御の実装
 ステータス: [ ] 優先度: [High]
 依存関係: なし
 進捗ノート:
-- 2024-03-21 初期タスク分析完了
-- 2024-03-21 要件の明確化完了
-- 2024-03-21 ログ要件の詳細化完了
 
-サブタスク:
-[ID-002] メインプロセス実装
+- 2024-03-21 要件確定完了
+- 問題点: マルチモニター環境でウィンドウが特定のディスプレイに固定される
+- 実装計画:
+  1. カーソル位置の取得機能の追加
+
+     ```javascript
+     const { screen } = require('electron');
+     const cursorPoint = screen.getCursorScreenPoint();
+     const display = screen.getDisplayNearestPoint(cursorPoint);
+     ```
+
+  2. ウィンドウ表示位置の制御
+
+     ```javascript
+     const { x, y } = display.bounds;
+     mainWindow.setPosition(x, y);
+     ```
+
+  3. テスト項目:
+     - マルチモニター環境での表示確認
+     - ディスプレイ間の移動時の動作確認
+     - カーソル位置の取得精度確認
+
+[ID-002] フルスクリーン環境でのpopup表示位置の修正
 ステータス: [ ] 優先度: [High]
 依存関係: なし
 進捗ノート:
-- アプリケーションの起動とウィンドウ管理
-- クリップボード監視システム（設定可能なポーリング間隔）
-- IPC通信の基本実装
-- ログ出力システムの実装
-- 設定パラメータの管理
 
-[ID-003] Rendererプロセス実装
-ステータス: [ ] 優先度: [High]
-依存関係: [ID-002]
-進捗ノート:
-- フレームレスウィンドウの実装
-- ポップアップアイコンのUIデザイン
-- クリックイベントハンドリング
-- アニメーション効果
+- 2024-03-21 要件確定完了
+- 問題点: フルスクリーン時にpopupが別ディスプレイに表示される
+- 実装計画:
+  1. popupウィンドウの独立表示の実装
 
-[ID-004] イベントフロー実装
-ステータス: [ ] 優先度: [High]
-依存関係: [ID-002], [ID-003]
-進捗ノート:
-- コピー検知ロジック
-- カーソル位置追跡
-- ポップアップ表示制御
-- 設定可能な表示時間の実装
+     ```javascript
+     const popupWindow = new BrowserWindow({
+       width: 400,  // 固定サイズ
+       height: 300, // 固定サイズ
+       webPreferences: {
+         nodeIntegration: true,
+         contextIsolation: false
+       }
+     });
+     ```
 
-[ID-005] UI/UX最適化
-ステータス: [ ] 優先度: [Medium]
-依存関係: [ID-003], [ID-004]
-進捗ノート:
-- アイコンサイズ最適化（24x24px）
-- カーソル位置からの適切なオフセット
-- 最前面表示の実装
-- スムーズな表示/非表示アニメーション
+  2. 表示位置の制御（現状のカーソル位置表示を維持）
 
-[ID-006] ログシステム実装
-ステータス: [ ] 優先度: [Medium]
-依存関係: [ID-002]
-進捗ノート:
-- ログディレクトリ構造の作成
-  ```
-  popup-app/
-  ├── logs/
-  │   ├── app.log
-  │   └── error.log
-  ```
-- ログレベルの実装
-  - Info: アプリケーションの動作イベント
-  - Error: エラー発生時の情報
-- ログローテーション
-- ログ出力先の設定
+     ```javascript
+     const cursorPoint = screen.getCursorScreenPoint();
+     const display = screen.getDisplayNearestPoint(cursorPoint);
+     popupWindow.setPosition(x, y);
+     ```
 
-[ID-007] テストと品質保証
-ステータス: [ ] 優先度: [High]
-依存関係: [ID-002], [ID-003], [ID-004], [ID-005], [ID-006]
-進捗ノート:
-- ユニットテスト
-- 統合テスト
-- パフォーマンステスト
-- macOSでの動作確認
+  3. テスト項目:
+     - フルスクリーン時の表示確認
+     - マルチモニター環境での表示確認
+     - カーソル位置での表示確認
 
-技術スタック:
-- Electron
-- TypeScript
-- HTML/CSS
-- Node.js
-- winston (ログ管理)
+実装の優先順位:
 
-設定パラメータ:
-```typescript
-interface AppConfig {
-  clipboardPollingInterval: number;  // クリップボードポーリング間隔（ms）
-  popupDisplayDuration: number;      // ポップアップ表示時間（ms）
-  popupOffset: {                     // カーソルからのオフセット
-    x: number;
-    y: number;
-  };
-  logLevel: 'info' | 'error';        // ログレベル
-  logDirectory: string;              // ログディレクトリパス
-}
-```
+1. マルチモニター環境でのウィンドウ表示制御
+2. popupウィンドウの独立表示と位置制御
+3. テストと動作確認
 
-ログ出力要件:
-1. Info レベル
-   - アプリケーション起動
-   - クリップボードの変更検知
-   - ポップアップの表示/非表示
-   - カーソル位置の変更
-   - ユーザーアクション（クリックなど）
+注意点:
 
-2. Error レベル
-   - クリップボード監視エラー
-   - API通信エラー
-   - ファイルシステムエラー
-   - その他の予期せぬエラー
-
-ログファイル構成:
-```
-popup-app/
-├── logs/
-│   ├── app.log    # Infoレベルのログ
-│   └── error.log  # Errorレベルのログ
-```
-
-確信度の根拠:
-- 基本アーキテクチャ: 95%
-- 技術スタック: 95%
-- 実装詳細: 95%
-- エラーハンドリング: 95%
-- ログ要件: 95%
-
-全体確信度: 95%
-
+- 既存のカーソル位置表示の動作は維持
+- popupウィンドウは固定サイズで実装
+- 画面端での特別な処理は不要
