@@ -1,7 +1,7 @@
 // app, which controls your application's event lifecycle.
 // BrowserWindow, which creates and manages app windows.
 
-const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, screen, dialog, systemPreferences } = require('electron')
 const path = require('path')
 const macAccessibility = require('./native_mac')
 
@@ -119,6 +119,13 @@ async function startTextSelectionPolling() {
 
 // アプリケーションの初期化
 app.whenReady().then(async () => {
+  // アプリケーション起動時に権限チェック
+  const hasPermission = await macAccessibility.checkPermission();
+  if (!hasPermission) {
+    // 権限がない場合は、ユーザーに設定を促すダイアログを表示
+    await macAccessibility.requestPermission();
+  }
+
   // アクセシビリティサポートを明示的に有効化
   app.setAccessibilitySupportEnabled(true);
 

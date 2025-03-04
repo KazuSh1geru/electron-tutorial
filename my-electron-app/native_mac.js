@@ -8,25 +8,33 @@ class MacAccessibility {
         this.lastClipboard = '';
     }
 
-    async checkPermission() {
+    async checkPermission   () {
         try {
-            // 両方のチェックを実行
+            // アクセシビリティ権限のチェック
             const isTrusted = systemPreferences.isTrustedAccessibilityClient(false);
-            const isEnabled = systemPreferences.isAXIsEnabled();
-            return isTrusted && isEnabled;
+            
+            // Apple Eventsの権限もチェック
+            const hasAppleEventsPermission = await macPermissions.getAuthStatus('apple-events');
+            
+            return isTrusted && hasAppleEventsPermission === 'authorized';
         } catch (error) {
-            console.error('Error checking accessibility permission:', error);
+            console.error('Error checking permissions:', error);
             return false;
         }
     }
 
     async requestPermission() {
         try {
-            // アクセシビリティサポートを明示的に有効化
-            app.setAccessibilitySupportEnabled(true);
-            return systemPreferences.isTrustedAccessibilityClient(true);
+            // まずアクセシビリティ権限をリクエスト
+            const accessibilityGranted = systemPreferences.isTrustedAccessibilityClient(true);
+            
+            // Apple Events権限もリクエスト
+            await macPermissions.requestAuth('apple-events');
+            
+            // 権限が付与されたかを再確認
+            return this.checkPermission();
         } catch (error) {
-            console.error('Error requesting accessibility permission:', error);
+            console.error('Error requesting permissions:', error);
             return false;
         }
     }
@@ -45,7 +53,8 @@ end tell`;
 
             return new Promise((resolve, reject) => {
                 const { exec } = require('child_process');
-                exec(`osascript -e '${script}'`, (error, stdout, stderr) => {
+                // maxBufferを増やし、大きなテキストも処理できるようにする
+                exec(`osascript -e '${script}'`, { maxBuffer: 1024 * 1024 }, (error, stdout, stderr) => {
                     if (error) {
                         console.error('Error executing AppleScript:', error);
                         resolve(null);
@@ -71,12 +80,14 @@ end tell`;
             // マウスカーソルの位置を取得するAppleScript
             const script = `
 tell application "System Events"
-    return mouse location
+    set mousePos to (get mouse location)
+    return mousePos
 end tell`;
 
             return new Promise((resolve, reject) => {
                 const { exec } = require('child_process');
-                exec(`osascript -e '${script}'`, (error, stdout, stderr) => {
+                // maxBufferオプションをこちらにも追加
+                exec(`osascript -e '${script}'`, { maxBuffer: 1024 * 1024 }, (error, stdout, stderr) => {
                     if (error) {
                         console.error('Error getting mouse position:', error);
                         resolve(null);
@@ -97,6 +108,7 @@ end tell`;
     }
 
     subscribeToAccessibilityChanges(callback) {
+        // 権限変更の監視を強化
         systemPreferences.subscribeNotification(
             'AXIsProcessTrustedChanged',
             async () => {
@@ -104,6 +116,9 @@ end tell`;
                 callback(granted);
             }
         );
+
+        // 初期状態もチェック
+        this.checkPermission().then(granted => callback(granted));
     }
 }
 
