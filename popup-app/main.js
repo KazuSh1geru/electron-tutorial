@@ -17,9 +17,9 @@ const createPopupWindow = cursorPosition => {
     popupWindow = new BrowserWindow({
       width: settings.popup.width,
       height: settings.popup.height,
-      frame: false,
-      transparent: true,
-      skipTaskbar: true,
+      frame: false, // フレームを非表示にする
+      transparent: true, // 透明にする
+      skipTaskbar: true, // タスクバーに表示しない
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
@@ -32,17 +32,17 @@ const createPopupWindow = cursorPosition => {
     // 最前面に表示するための設定
     popupWindow.setAlwaysOnTop(true, 'floating');
 
-    // macOS特有の設定
+    // macOS特有の設定: フルスクリーンであっても表示を可能にする
     if (process.platform === 'darwin') {
       popupWindow.setVisibleOnAllWorkspaces(true, {
-        visibleOnFullScreen: true
+        visibleOnFullScreen: true,
       });
     }
 
     // ウィンドウの位置を設定
     const x = cursorPosition.x;
     const y = cursorPosition.y;
-    
+
     // 位置を設定してからウィンドウを表示
     popupWindow.setPosition(x, y);
     popupWindow.loadFile('popup.html');
@@ -56,7 +56,6 @@ const createPopupWindow = cursorPosition => {
         popupWindow = null;
       }
     }, settings.popup.displayDuration);
-
   } catch (error) {
     logger.error('Failed to create popup window:', error);
   }
