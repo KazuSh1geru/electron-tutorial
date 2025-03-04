@@ -1,7 +1,10 @@
 const { app, BrowserWindow, ipcMain, clipboard, screen } = require('electron/main');
 const logger = require('./src/utils/logger');
+const TextCorrector = require('./src/services/TextCorrector');
 
 let popupWindow = null;
+let mainWindow = null;
+const textCorrector = new TextCorrector();
 
 const createPopupWindow = (cursorPosition) => {
   try {
@@ -62,7 +65,7 @@ function startClipboardMonitoring() {
 
 const createWindow = () => {
   try {
-    const win = new BrowserWindow({
+    mainWindow = new BrowserWindow({
       width: 800,
       height: 600,
       webPreferences: {
@@ -71,7 +74,7 @@ const createWindow = () => {
       },
     });
 
-    win.loadFile('index.html');
+    mainWindow.loadFile('index.html');
     logger.info('Main window created successfully');
   } catch (error) {
     logger.error('Failed to create main window:', error);
@@ -80,12 +83,27 @@ const createWindow = () => {
 };
 
 // IPC通信の設定
-ipcMain.on('correct-text', (event, text) => {
-  logger.info('Text correction requested:', text);
-  // TODO: テキスト校正処理の実装
-  if (popupWindow) {
-    popupWindow.close();
-    popupWindow = null;
+ipcMain.on('correct-text', async (event, text) => {
+  try {
+    logger.info('Text correction requested:', text);
+    
+    // メインウィンドウに処理中メッセージを表示
+    mainWindow.webContents.send('correction-status', '校正しています...');
+    
+    // 校正処理を実行
+    const result = await textCorrector.correct(text);
+    
+    // 処理結果をメインウィンドウに送信
+    mainWindow.webContents.send('correction-complete', result);
+    
+    // ポップアップウィンドウを閉じる
+    if (popupWindow) {
+      popupWindow.close();
+      popupWindow = null;
+    }
+  } catch (error) {
+    logger.error('Text correction failed:', error);
+    mainWindow.webContents.send('correction-error', error.message);
   }
 });
 
