@@ -76,6 +76,9 @@ const createWindow = () => {
       },
     });
 
+    // 開発時のデバッグ用
+    // mainWindow.webContents.openDevTools();
+
     mainWindow.loadFile('index.html');
     logger.info('Main window created successfully');
   } catch (error) {
