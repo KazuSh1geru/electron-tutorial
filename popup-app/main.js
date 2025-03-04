@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, clipboard, screen } = require('electron/main');
 const logger = require('./src/utils/logger');
 const TextCorrector = require('./src/services/TextCorrector');
+const settings = require('./src/settings');
 
 let popupWindow = null;
 let mainWindow = null;
@@ -10,8 +11,8 @@ const createPopupWindow = cursorPosition => {
   try {
     // ポップアップウィンドウの作成
     popupWindow = new BrowserWindow({
-      width: 320,
-      height: 200,
+      width: settings.popup.width,
+      height: settings.popup.height,
       frame: false,
       transparent: true,
       alwaysOnTop: true,
@@ -22,8 +23,8 @@ const createPopupWindow = cursorPosition => {
     });
 
     // カーソル位置から少しオフセットした位置に表示
-    const offset = 20;
-    popupWindow.setPosition(cursorPosition.x + offset, cursorPosition.y + offset);
+    const offset = settings.popup.offset;
+    popupWindow.setPosition(cursorPosition.x + offset.x, cursorPosition.y + offset.y);
 
     popupWindow.loadFile('popup.html');
     logger.info('Popup window created successfully');
@@ -34,7 +35,7 @@ const createPopupWindow = cursorPosition => {
         popupWindow.close();
         popupWindow = null;
       }
-    }, 3000);
+    }, settings.popup.displayDuration);
   } catch (error) {
     logger.error('Failed to create popup window:', error);
   }
@@ -62,13 +63,13 @@ function startClipboardMonitoring() {
         popupWindow.webContents.send('update-clipboard', currentText);
       }
     }
-  }, 500);
+  }, settings.clipboard.pollingInterval);
 }
 const createWindow = () => {
   try {
     mainWindow = new BrowserWindow({
-      width: 800,
-      height: 600,
+      width: settings.window.main.width,
+      height: settings.window.main.height,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
