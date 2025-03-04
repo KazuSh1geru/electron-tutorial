@@ -8,7 +8,6 @@ function updateClipboardContent(text) {
   infoElement.innerHTML = `
     <div id="clipboard-content">
       <h2>クリップボードの内容:</h2>
-      <h3>テキスト:</h3>
       <pre>${text}</pre>
     </div>
     <div id="correction-area"></div>
