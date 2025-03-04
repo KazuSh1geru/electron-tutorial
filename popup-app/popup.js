@@ -7,7 +7,7 @@ function updateClipboardContent(text) {
 }
 
 // 校正ボタンのクリックイベント
-document.getElementById('main-correction-button').addEventListener('click', () => {
+document.getElementById('sub-correction-button').addEventListener('click', () => {
   const text = document.getElementById('clipboard-content').textContent;
   ipcRenderer.send('correct-text', text);
 });

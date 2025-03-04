@@ -5,7 +5,7 @@ body {
   overflow: hidden;
 }
 
-#main-correction-button {
+#sub-correction-button {
   background-color: white;
   color: #8A2BE2;
   padding: 8px 16px;
@@ -16,6 +16,6 @@ body {
   font-size: 14px;
 }
 
-#main-correction-button:hover {
+#sub-correction-button:hover {
   background-color: #f0f0f0;
 } 
