@@ -13,6 +13,10 @@ const createWindow = () => {
     });
 
     win.loadFile('index.html');
+    
+    // デバッグツールを開く
+    // win.webContents.openDevTools();
+    
     logger.info('Main window created successfully');
   } catch (error) {
     logger.error('Failed to create main window:', error);
@@ -52,4 +56,4 @@ process.on('uncaughtException', (error) => {
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-}); 
+});
