@@ -37,9 +37,11 @@ const logger = winston.createLogger({
 
 // 開発環境の場合はコンソールにも出力
 if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: logFormat,
-  }));
+  logger.add(
+    new winston.transports.Console({
+      format: logFormat,
+    })
+  );
 }
 
-module.exports = logger; 
+module.exports = logger;

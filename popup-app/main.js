@@ -6,7 +6,7 @@ let popupWindow = null;
 let mainWindow = null;
 const textCorrector = new TextCorrector();
 
-const createPopupWindow = (cursorPosition) => {
+const createPopupWindow = cursorPosition => {
   try {
     // ポップアップウィンドウの作成
     popupWindow = new BrowserWindow({
@@ -23,10 +23,7 @@ const createPopupWindow = (cursorPosition) => {
 
     // カーソル位置から少しオフセットした位置に表示
     const offset = 20;
-    popupWindow.setPosition(
-      cursorPosition.x + offset,
-      cursorPosition.y + offset
-    );
+    popupWindow.setPosition(cursorPosition.x + offset, cursorPosition.y + offset);
 
     popupWindow.loadFile('popup.html');
     logger.info('Popup window created successfully');
@@ -54,7 +51,7 @@ function startClipboardMonitoring() {
       lastClipboardText = currentText;
       const cursorPosition = screen.getCursorScreenPoint();
       createPopupWindow(cursorPosition);
-      
+
       // ポップアップウィンドウが存在する場合は内容を更新
       if (popupWindow) {
         popupWindow.webContents.send('update-clipboard', currentText);
@@ -86,19 +83,19 @@ const createWindow = () => {
 ipcMain.on('correct-text', async (event, text) => {
   try {
     logger.info('Text correction requested:', text);
-    
+
     // メインウィンドウに処理中メッセージを表示
     mainWindow.webContents.send('correction-status', '校正しています...');
-    
+
     // クリップボードから現在のテキストを取得
     const clipboardText = clipboard.readText();
-    
+
     // 校正処理を実行
     const result = await textCorrector.correct(clipboardText);
-    
+
     // 処理結果をメインウィンドウに送信
     mainWindow.webContents.send('correction-complete', result);
-    
+
     // ポップアップウィンドウを閉じる
     if (popupWindow) {
       popupWindow.close();
@@ -110,20 +107,23 @@ ipcMain.on('correct-text', async (event, text) => {
   }
 });
 
-app.whenReady().then(() => {
-  logger.info('Application started');
-  createWindow();
-  startClipboardMonitoring();
+app
+  .whenReady()
+  .then(() => {
+    logger.info('Application started');
+    createWindow();
+    startClipboardMonitoring();
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+      }
+    });
+  })
+  .catch(error => {
+    logger.error('Failed to start application:', error);
+    app.quit();
   });
-}).catch(error => {
-  logger.error('Failed to start application:', error);
-  app.quit();
-});
 
 app.on('window-all-closed', () => {
   logger.info('All windows closed, application will quit');
@@ -137,7 +137,7 @@ app.on('before-quit', () => {
 });
 
 // エラーハンドリング
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   logger.error('Uncaught Exception:', error);
 });
 

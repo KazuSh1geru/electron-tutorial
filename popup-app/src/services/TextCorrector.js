@@ -8,18 +8,18 @@ class TextCorrector {
   async correct(text) {
     // 処理中であることを示すログ
     console.log('校正処理を開始します...');
-    
+
     // 処理時間を模擬
     await new Promise(resolve => setTimeout(resolve, this.processingTime));
-    
+
     // ダミーの校正結果を返す
     return {
       original: text,
       corrected: DUMMY_CORRECTED_TEXT,
       status: 'success',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 }
 
-module.exports = TextCorrector; 
+module.exports = TextCorrector;

@@ -15,4 +15,4 @@ document.getElementById('correct-button').addEventListener('click', () => {
 // メインプロセスからの更新を受け取る
 ipcRenderer.on('update-clipboard', (event, text) => {
   updateClipboardContent(text);
-}); 
+});
