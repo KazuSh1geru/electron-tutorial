@@ -1,0 +1,57 @@
+{
+  "name": "popup-app",
+  "version": "1.1.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "clean": "rm -rf dist/",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "pack": "electron-builder --dir",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
+  },
+  "build": {
+    "appId": "com.example.popup-app",
+    "productName": "PopupApp",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "build/icon.icns",
+      "identity": null
+    },
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+    ]
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "Popup Electron application description",
+  "devDependencies": {
+    "electron": "^25.9.8",
+    "electron-builder": "^24.6.4",
+    "prettier": "^3.5.3"
+  },
+  "dependencies": {
+    "active-win": "^8.2.1",
+    "node-mac-permissions": "^2.4.0"
+  }
+}
