@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "active-win": "^8.2.1",
-    "node-mac-permissions": "^2.4.0"
+    "node-mac-permissions": "^2.4.0",
+    "winston": "^3.11.0"
   }
 }
