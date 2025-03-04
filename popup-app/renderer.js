@@ -1,24 +1,17 @@
-const { clipboard, ipcRenderer } = require('electron');
+const { ipcRenderer } = require('electron');
 
 console.log('Renderer process started');
 
-// クリップボードの内容を表示する関数
-function displayClipboardContent() {
-  console.log('Updating clipboard content');
-  const infoElement = document.getElementById('info');
-
-  // テキストの内容を取得
-  const text = clipboard.readText();
-  console.log('Clipboard text:', text);
-
-  // 表示を更新
-  infoElement.innerHTML = `
+// 初期表示
+const infoElement = document.getElementById('info');
+infoElement.innerHTML = `
+  <div id="clipboard-content">
     <h2>クリップボードの内容:</h2>
     <h3>テキスト:</h3>
-    <pre>${text}</pre>
-    <div id="correction-area"></div>
-  `;
-}
+    <pre>クリップボードの内容が変更されると、ここに表示されます</pre>
+  </div>
+  <div id="correction-area"></div>
+`;
 
 // 校正状態を表示する関数
 function displayCorrectionStatus(status) {
@@ -69,9 +62,3 @@ ipcRenderer.on('correction-complete', (event, result) => {
 ipcRenderer.on('correction-error', (event, error) => {
   displayError(error);
 });
-
-// 定期的にクリップボードの内容を更新
-setInterval(displayClipboardContent, 1000);
-
-// 初期表示
-displayClipboardContent(); 
