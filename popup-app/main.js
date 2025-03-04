@@ -9,33 +9,56 @@ const textCorrector = new TextCorrector();
 
 const createPopupWindow = cursorPosition => {
   try {
+    // カーソル位置からディスプレイを特定
+    const display = screen.getDisplayNearestPoint(cursorPosition);
+    const { workArea } = display; // 実際の作業領域を取得（タスクバーなどを除く）
+
     // ポップアップウィンドウの作成
     popupWindow = new BrowserWindow({
       width: settings.popup.width,
       height: settings.popup.height,
       frame: false,
       transparent: true,
-      alwaysOnTop: true,
+      skipTaskbar: true,
+      focusable: false,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
       },
+      // フルスクリーン対応の設定
+      type: 'panel', // パネルタイプに変更（最も上位レイヤーで表示）
+      hasShadow: false,
     });
 
-    // カーソル位置から少しオフセットした位置に表示
-    const offset = settings.popup.offset;
-    popupWindow.setPosition(cursorPosition.x + offset.x, cursorPosition.y + offset.y);
+    // ウィンドウの位置を設定
+    // workArea内に収まるように位置を調整
+    const x = Math.min(
+      Math.max(cursorPosition.x, workArea.x),
+      workArea.x + workArea.width - settings.popup.width
+    );
+    const y = Math.min(
+      Math.max(cursorPosition.y, workArea.y),
+      workArea.y + workArea.height - settings.popup.height
+    );
 
+    // 最前面に表示するための設定
+    popupWindow.setAlwaysOnTop(true, 'screen-saver', 2);
+    popupWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    
+    // 位置を設定してからウィンドウを表示
+    popupWindow.setPosition(x, y);
     popupWindow.loadFile('popup.html');
+
     logger.info('Popup window created successfully');
 
     // 3秒後に自動的に閉じる
     setTimeout(() => {
-      if (popupWindow) {
+      if (popupWindow && !popupWindow.isDestroyed()) {
         popupWindow.close();
         popupWindow = null;
       }
     }, settings.popup.displayDuration);
+
   } catch (error) {
     logger.error('Failed to create popup window:', error);
   }
