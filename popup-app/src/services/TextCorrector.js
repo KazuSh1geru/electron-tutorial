@@ -7,14 +7,14 @@ class TextCorrector {
 
   async correct(text) {
     console.log('校正処理を開始します...');
-    
+
     await new Promise(resolve => setTimeout(resolve, this.processingTime));
-    
+
     return {
       original: text,
       corrected: 'TODO: 後ほど実装する',
       status: 'success',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 }

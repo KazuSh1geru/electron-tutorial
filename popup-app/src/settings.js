@@ -1,12 +1,13 @@
 const settings = {
   clipboard: {
-    pollingInterval: 500,  // クリップボードの監視間隔（ミリ秒）
+    pollingInterval: 500, // クリップボードの監視間隔（ミリ秒）
   },
   popup: {
-    width: 320,           // ポップアップウィンドウの幅
-    height: 200,          // ポップアップウィンドウの高さ
+    width: 320, // ポップアップウィンドウの幅
+    height: 200, // ポップアップウィンドウの高さ
     displayDuration: 3000, // 表示時間（ミリ秒）
-    offset: {             // カーソル位置からのオフセット
+    offset: {
+      // カーソル位置からのオフセット
       x: 20,
       y: 20,
     },

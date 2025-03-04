@@ -8,7 +8,6 @@ function updateClipboardContent(text) {
   infoElement.innerHTML = `
     <div id="clipboard-content">
       <h2>クリップボードの内容:</h2>
-      <h3>テキスト:</h3>
       <pre>${text}</pre>
     </div>
     <div id="correction-area"></div>
@@ -51,6 +50,18 @@ function displayError(error) {
     `;
   }
 }
+
+// メインウィンドウの校正ボタンのクリックイベント
+document.getElementById('main-correction-button').addEventListener('click', () => {
+  const clipboardContent = document.querySelector('#clipboard-content pre');
+  if (clipboardContent) {
+    const text = clipboardContent.textContent;
+    ipcRenderer.send('correct-text', text);
+    displayCorrectionStatus('校正処理中...');
+  } else {
+    displayError('クリップボードの内容が見つかりません。');
+  }
+});
 
 // IPCイベントの設定
 ipcRenderer.on('update-clipboard', (event, text) => {
